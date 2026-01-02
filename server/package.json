@@ -6,8 +6,8 @@
   "scripts": {
     "start": "tsx server.ts",
     "server": "nodemon --exec tsx server.ts",
-    "build": "tsc",
-    "vercel-build": "npm run build",
+    "build": "tsc && npx prisma generate",
+    "vercel-build": "npx prisma generate && tsc",
     "postinstall": "npx prisma generate"
   },
   "keywords": [],
