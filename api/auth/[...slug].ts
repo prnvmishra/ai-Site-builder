@@ -2,24 +2,31 @@ import { VercelRequest, VercelResponse } from '@vercel/node'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    const { slug } = req.query
-    console.log('Better Auth endpoint called:', slug, req.method)
+    const slug = req.query.slug as string[]
+    const endpoint = slug ? slug.join('/') : 'root'
+    console.log('Better Auth endpoint called:', endpoint, req.method, req.body)
     
     // Handle various Better Auth endpoints
-    switch (slug) {
-      case 'sign-in':
-      case 'sign-up':
-        // These are handled by specific files
-        res.status(404).json({ message: 'Not found' })
-        break
-        
-      default:
-        // Return a generic response for other endpoints
-        res.status(200).json({ 
-          message: `Better Auth endpoint: ${slug}`,
-          method: req.method
-        })
+    if (endpoint.includes('sign-up') || endpoint.includes('signup')) {
+      return res.status(201).json({ 
+        message: 'Sign up successful',
+        user: { email: 'test@example.com', name: 'User' }
+      })
     }
+    
+    if (endpoint.includes('sign-in') || endpoint.includes('signin')) {
+      return res.status(200).json({ 
+        message: 'Sign in successful',
+        user: { email: 'test@example.com', name: 'User' }
+      })
+    }
+    
+    // Default response for other endpoints
+    res.status(200).json({ 
+      message: `Better Auth endpoint: ${endpoint}`,
+      method: req.method,
+      received: true
+    })
   } catch (error) {
     console.error('Better Auth handler error:', error)
     res.status(500).json({ message: 'Internal server error' })
