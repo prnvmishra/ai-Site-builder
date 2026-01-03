@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import 'dotenv/config';
 
 const app = express();
 
@@ -26,6 +27,19 @@ app.get('/api/test-env', (req: Request, res: Response) => {
         hasTrustedOrigins: !!process.env.TRUSTED_ORIGINS,
         nodeEnv: process.env.NODE_ENV
     });
+});
+
+// Load Better Auth asynchronously
+app.get('/api/auth/session', async (req: Request, res: Response) => {
+    try {
+        const { auth } = await import('./lib/auth.js');
+        const { toNodeHandler } = await import('better-auth/node');
+        const handler = toNodeHandler(auth);
+        return handler(req, res);
+    } catch (error) {
+        console.error('Better Auth error:', error);
+        res.json({ session: null, user: null });
+    }
 });
 
 // For Vercel deployment
