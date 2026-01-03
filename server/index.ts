@@ -29,8 +29,8 @@ app.get('/api/test-env', (req: Request, res: Response) => {
     });
 });
 
-// Load Better Auth asynchronously
-app.get('/api/auth/session', async (req: Request, res: Response) => {
+// Load Better Auth asynchronously for all auth routes
+app.all('/api/auth/*', async (req: Request, res: Response) => {
     try {
         const { auth } = await import('./lib/auth.js');
         const { toNodeHandler } = await import('better-auth/node');
@@ -38,7 +38,10 @@ app.get('/api/auth/session', async (req: Request, res: Response) => {
         return handler(req, res);
     } catch (error) {
         console.error('Better Auth error:', error);
-        res.json({ session: null, user: null });
+        res.status(500).json({ 
+            error: 'Authentication service unavailable',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        });
     }
 });
 
