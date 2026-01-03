@@ -26,31 +26,6 @@ app.use(express.json({limit: '50mb'}))
 app.get('/', (req: Request, res: Response) => {
     res.send('Server is Live!');
 });
-
-// Debug endpoint to test database connection
-app.get('/api/debug', async (req: Request, res: Response) => {
-    try {
-        const prisma = await import('./lib/prisma.js').then(m => m.default);
-        await prisma.$connect();
-        const userCount = await prisma.user.count();
-        res.json({ 
-            message: 'Database connected successfully',
-            userCount,
-            env: {
-                DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
-                BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ? 'SET' : 'NOT_SET',
-                BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || 'NOT_SET',
-                TRUSTED_ORIGINS: process.env.TRUSTED_ORIGINS || 'NOT_SET'
-            }
-        });
-    } catch (error) {
-        console.error('Debug endpoint error:', error);
-        res.status(500).json({ 
-            message: 'Database connection failed',
-            error: error instanceof Error ? error.message : 'Unknown error'
-        });
-    }
-});
 app.use('/api/user', userRouter);
 app.use('/api/project', projectRouter);
 

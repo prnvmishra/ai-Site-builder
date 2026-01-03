@@ -5,19 +5,27 @@ import prisma from "./prisma.js";
 
 const trustedOrigins = process.env.TRUSTED_ORIGINS?.split(',') || [];
 
+if (!process.env.BETTER_AUTH_SECRET) {
+  throw new Error('BETTER_AUTH_SECRET is not set');
+}
+
+if (!process.env.BETTER_AUTH_URL) {
+  throw new Error('BETTER_AUTH_URL is not set');
+}
+
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql", 
     }),
     emailAndPassword: { 
-    enabled: true, 
-  },
+        enabled: true, 
+    },
   user: {
     deleteUser: {enabled: true}
   },
   trustedOrigins,
-  baseURL: process.env.BETTER_AUTH_URL!,
-  secret: process.env.BETTER_AUTH_SECRET!,
+  baseURL: process.env.BETTER_AUTH_URL,
+  secret: process.env.BETTER_AUTH_SECRET,
   advanced: {
     cookies: {
         session_token: {
@@ -31,5 +39,4 @@ export const auth = betterAuth({
         }
     }
   }
-  
 });
